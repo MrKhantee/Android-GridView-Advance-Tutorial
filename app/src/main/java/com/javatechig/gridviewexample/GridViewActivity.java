@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,8 +14,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -46,17 +49,30 @@ public class GridViewActivity extends ActionBarActivity {
         mGridAdapter = new GridViewAdapter(this, R.layout.grid_item_layout, mGridData);
         mGridView.setAdapter(mGridAdapter);
 
-        //Handing grid view click event
+        //Grid view click event
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
                 //Get item at position
                 GridItem item = (GridItem) parent.getItemAtPosition(position);
 
-                //Pass the image title and url to DetailsActivity
                 Intent intent = new Intent(GridViewActivity.this, DetailsActivity.class);
-                intent.putExtra("title", item.getTitle());
-                intent.putExtra("image", item.getImage());
+                ImageView imageView = (ImageView) v.findViewById(R.id.grid_item_image);
+
+                // Interesting data to pass across are the thumbnail size/location, the
+                // resourceId of the source bitmap, the picture description, and the
+                // orientation (to avoid returning back to an obsolete configuration if
+                // the device rotates again in the meantime)
+
+                int[] screenLocation = new int[2];
+                imageView.getLocationOnScreen(screenLocation);
+
+                //Pass the image title and url to DetailsActivity
+                intent.putExtra("left", screenLocation[0]).
+                        putExtra("top", screenLocation[1]).
+                        putExtra("width", imageView.getWidth()).
+                        putExtra("height", imageView.getHeight()).
+                        putExtra("title", item.getTitle()).
+                        putExtra("image", item.getImage());
 
                 //Start details activity
                 startActivity(intent);
@@ -129,6 +145,7 @@ public class GridViewActivity extends ActionBarActivity {
 
     /**
      * Parsing the feed results and get the list
+     *
      * @param result
      */
     private void parseResult(String result) {
