@@ -1,4 +1,4 @@
-## Android GridView Advance Tutoria
+## Android GridView Advance Tutorial
 
 ![image](https://github.com/MrKhantee/Android-GridView-Advance-Tutorial/blob/master/device-2015-03-28-114520.png)
 
