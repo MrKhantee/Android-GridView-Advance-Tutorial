@@ -26,7 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class GridViewActivity extends ActionBarActivity {
+public class GridViewActivity extends ActionBarActivity
+{
     private static final String TAG = GridViewActivity.class.getSimpleName();
 
     private GridView mGridView;
@@ -37,7 +38,8 @@ public class GridViewActivity extends ActionBarActivity {
     private String FEED_URL = "http://javatechig.com/?json=get_recent_posts&count=45";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+	{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gridview);
 
@@ -51,33 +53,34 @@ public class GridViewActivity extends ActionBarActivity {
 
         //Grid view click event
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                //Get item at position
-                GridItem item = (GridItem) parent.getItemAtPosition(position);
+				public void onItemClick(AdapterView<?> parent, View v, int position, long id)
+				{
+					//Get item at position
+					GridItem item = (GridItem) parent.getItemAtPosition(position);
 
-                Intent intent = new Intent(GridViewActivity.this, DetailsActivity.class);
-                ImageView imageView = (ImageView) v.findViewById(R.id.grid_item_image);
+					Intent intent = new Intent(GridViewActivity.this, DetailsActivity.class);
+					ImageView imageView = (ImageView) v.findViewById(R.id.grid_item_image);
 
-                // Interesting data to pass across are the thumbnail size/location, the
-                // resourceId of the source bitmap, the picture description, and the
-                // orientation (to avoid returning back to an obsolete configuration if
-                // the device rotates again in the meantime)
+					// Interesting data to pass across are the thumbnail size/location, the
+					// resourceId of the source bitmap, the picture description, and the
+					// orientation (to avoid returning back to an obsolete configuration if
+					// the device rotates again in the meantime)
 
-                int[] screenLocation = new int[2];
-                imageView.getLocationOnScreen(screenLocation);
+					int[] screenLocation = new int[2];
+					imageView.getLocationOnScreen(screenLocation);
 
-                //Pass the image title and url to DetailsActivity
-                intent.putExtra("left", screenLocation[0]).
+					//Pass the image title and url to DetailsActivity
+					intent.putExtra("left", screenLocation[0]).
                         putExtra("top", screenLocation[1]).
                         putExtra("width", imageView.getWidth()).
                         putExtra("height", imageView.getHeight()).
                         putExtra("title", item.getTitle()).
                         putExtra("image", item.getImage());
 
-                //Start details activity
-                startActivity(intent);
-            }
-        });
+					//Start details activity
+					startActivity(intent);
+				}
+			});
 
         //Start download
         new AsyncHttpTask().execute(FEED_URL);
@@ -86,26 +89,34 @@ public class GridViewActivity extends ActionBarActivity {
 
 
     //Downloading data asynchronously
-    public class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
+    public class AsyncHttpTask extends AsyncTask<String, Void, Integer>
+	{
 
         @Override
-        protected Integer doInBackground(String... params) {
+        protected Integer doInBackground(String... params)
+		{
             Integer result = 0;
-            try {
+            try
+			{
                 // Create Apache HttpClient
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpResponse httpResponse = httpclient.execute(new HttpGet(params[0]));
                 int statusCode = httpResponse.getStatusLine().getStatusCode();
 
                 // 200 represents HTTP OK
-                if (statusCode == 200) {
+                if (statusCode == 200)
+				{
                     String response = streamToString(httpResponse.getEntity().getContent());
                     parseResult(response);
                     result = 1; // Successful
-                } else {
+                }
+				else
+				{
                     result = 0; //"Failed
                 }
-            } catch (Exception e) {
+            }
+			catch (Exception e)
+			{
                 Log.d(TAG, e.getLocalizedMessage());
             }
 
@@ -113,12 +124,16 @@ public class GridViewActivity extends ActionBarActivity {
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(Integer result)
+		{
             // Download complete. Lets update UI
 
-            if (result == 1) {
+            if (result == 1)
+			{
                 mGridAdapter.setGridData(mGridData);
-            } else {
+            }
+			else
+			{
                 Toast.makeText(GridViewActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
             }
 
@@ -128,16 +143,19 @@ public class GridViewActivity extends ActionBarActivity {
     }
 
 
-    String streamToString(InputStream stream) throws IOException {
+    String streamToString(InputStream stream) throws IOException
+	{
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
         String line;
         String result = "";
-        while ((line = bufferedReader.readLine()) != null) {
+        while ((line = bufferedReader.readLine()) != null)
+		{
             result += line;
         }
 
         // Close stream
-        if (null != stream) {
+        if (null != stream)
+		{
             stream.close();
         }
         return result;
@@ -148,25 +166,31 @@ public class GridViewActivity extends ActionBarActivity {
      *
      * @param result
      */
-    private void parseResult(String result) {
-        try {
+    private void parseResult(String result)
+	{
+        try
+		{
             JSONObject response = new JSONObject(result);
             JSONArray posts = response.optJSONArray("posts");
             GridItem item;
-            for (int i = 0; i < posts.length(); i++) {
+            for (int i = 0; i < posts.length(); i++)
+			{
                 JSONObject post = posts.optJSONObject(i);
                 String title = post.optString("title");
                 item = new GridItem();
                 item.setTitle(title);
                 JSONArray attachments = post.getJSONArray("attachments");
-                if (null != attachments && attachments.length() > 0) {
+                if (null != attachments && attachments.length() > 0)
+				{
                     JSONObject attachment = attachments.getJSONObject(0);
                     if (attachment != null)
                         item.setImage(attachment.getString("url"));
                 }
                 mGridData.add(item);
             }
-        } catch (JSONException e) {
+        }
+		catch (JSONException e)
+		{
             e.printStackTrace();
         }
     }
